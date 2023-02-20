@@ -37,7 +37,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.0' # The version of Node.js to use
-        cache: 'bundler' # The package manager to use 
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
         #cache-dependency-path: '**/Gemfile.lock' # The path to requirements.txt file to find dependancies to cache
         # registry-url: 'https://registry.npmjs.org/' # The private registry to use for the Node.js packages
 

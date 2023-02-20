@@ -1,0 +1,54 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches:
+      - "master"  # Change this to the branch to default branch
+      - "!ignore/branch" # Ignore CodeQL scan for these branches
+      - "!test/*" # Ignore CodeQL scan for these branches
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.txt'
+  pull_request:
+    branches:
+      - "master"  # Change this to the branch to default branch
+  schedule:
+    - cron: '44 23 * * 1' # Run CodeQL scan every Friday at 11:44 PM UTC
+    
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # Set timeout to 30 minutes; Change if your project takes longer to scan
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'ruby' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0' # Not needed with a .ruby-version file
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+        # working-directory: ./path/to/your/project # The path to your project if its a monorepo
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+        # queries: security-extended,security-and-quality
+        # debug: true # Only use this for debugging. It will increase the runtime of the action and take up storage
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"

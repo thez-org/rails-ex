@@ -36,9 +36,9 @@ jobs:
 
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.x' # The version of Node.js to use
+        #ruby-version: '3.x' # The version of Node.js to use
         cache: 'bundler' # The package manager to use 
-        cache-dependency-path: '**/Gemfile.lock' # The path to requirements.txt file to find dependancies to cache
+        #cache-dependency-path: '**/Gemfile.lock' # The path to requirements.txt file to find dependancies to cache
         # registry-url: 'https://registry.npmjs.org/' # The private registry to use for the Node.js packages
 
     # Initializes the CodeQL tools for scanning.

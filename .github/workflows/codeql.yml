@@ -1,20 +1,10 @@
-name: "CodeQL"
+name: "CodeQL - Complete analysis"
 
 on:
-  push:
-    branches:
-      - "master"  # Change this to the branch to default branch
-      - "!ignore/branch" # Ignore CodeQL scan for these branches
-      - "!test/*" # Ignore CodeQL scan for these branches
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.txt'
-  pull_request:
-    branches:
-      - "master"  # Change this to the branch to default branch
   schedule:
-    - cron: '44 23 * * 1' # Run CodeQL scan every Friday at 11:44 PM UTC
-    
+    - cron: '44 23 12 * *' # Run CodeQL scan on a day of every month at 11:44 PM UTC
+  workflow_dispatch:
+  
 jobs:
   analyze:
     name: Analyze
@@ -34,12 +24,25 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # This step will try to find a Dockerfile in the repository and extract the Ruby version from it.
+    # If you don't use Docker, you can remove this step and add the Ruby version directly to the
+    # ruby-version parameter in the `ruby/setup-ruby` step below.
+    - name: Find Ruby version in Dockerfile
+      id: find-ruby-version-in-dockerfile
+      run: |
+        ruby_version=$(find . -name Dockerfile -exec sed -En 's/^FROM ruby:([0-9.]+)(.*)/\1/p' {} \;)
+        if [ -z "$ruby_version" ]; then
+          echo "No Dockerfile found, using default Ruby version"
+          ruby_version="2.7"
+        else
+          echo "Found Dockerfile, using Ruby version $ruby_version"
+        fi
+        echo USE_RUBY_VERSION=$ruby_version >> $GITHUB_OUTPUT
+
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.0' # The version of Node.js to use
+        ruby-version: ${{ steps.find-ruby-version-in-dockerfile.outputs.USE_RUBY_VERSION }} # The version of Ruby to use
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-        #cache-dependency-path: '**/Gemfile.lock' # The path to requirements.txt file to find dependancies to cache
-        # registry-url: 'https://registry.npmjs.org/' # The private registry to use for the Node.js packages
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
